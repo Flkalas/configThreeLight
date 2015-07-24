@@ -44,7 +44,7 @@ all: configThreeLight
 configThreeLight: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: GCC C++ Linker'
-	g++  -o "configThreeLight" $(OBJS) $(USER_OBJS) $(LIBS)
+	g++ -L/usr/local/lib -o "configThreeLight" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
