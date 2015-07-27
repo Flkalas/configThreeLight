@@ -1,6 +1,3 @@
-src/configThreeLight.d: ../src/configThreeLight.cpp ../src/openCV.h \
- ../src/bluetooth.h
-
-../src/openCV.h:
+src/configThreeLight.d: ../src/configThreeLight.cpp ../src/bluetooth.h
 
 ../src/bluetooth.h:

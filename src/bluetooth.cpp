@@ -29,22 +29,22 @@ int testBlue(void){
 
     hci_le_set_scan_parameters(sock, 0x01, htobs(0x0010), htobs(0x0010), 0x00, 0x00, 2000);
     hci_le_set_scan_enable(sock, 0x01, 0, 1000);
-    hci_le_set_advertise_enable(sock, 0, 1000);
-    hci_le_set_advertise_enable(sock, 1, 1000);
+//    hci_le_set_advertise_enable(sock, 0, 1000);
+//    hci_le_set_advertise_enable(sock, 1, 1000);
 
-//    while(1){
-//		num_rsp = hci_inquiry(dev_id, len, max_rsp, NULL, &ii, flags);
-//		if( num_rsp < 0 ) perror("hci_inquiry");
-//
-//		for (i = 0; i < num_rsp; i++) {
-//			ba2str(&(ii+i)->bdaddr, addr);
-//			memset(name, 0, sizeof(name));
-//			if (hci_read_remote_name(sock, &(ii+i)->bdaddr, sizeof(name),
-//				name, 0) < 0)
-//			strcpy(name, "[unknown]");
-//			printf("%s  %s\n", addr, name);
-//		}
-//    }
+    while(1){
+		num_rsp = hci_inquiry(dev_id, len, max_rsp, NULL, &ii, flags);
+		if( num_rsp < 0 ) perror("hci_inquiry");
+
+		for (i = 0; i < num_rsp; i++) {
+			ba2str(&(ii+i)->bdaddr, addr);
+			memset(name, 0, sizeof(name));
+			if (hci_read_remote_name(sock, &(ii+i)->bdaddr, sizeof(name),
+				name, 0) < 0)
+			strcpy(name, "[unknown]");
+			printf("%s  %s\n", addr, name);
+		}
+    }
 
     free( ii );
     close( sock );
