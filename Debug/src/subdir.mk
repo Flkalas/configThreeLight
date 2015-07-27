@@ -5,18 +5,15 @@
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
 ../src/bluetooth.cpp \
-../src/configThreeLight.cpp \
-../src/openCV.cpp 
+../src/configThreeLight.cpp 
 
 OBJS += \
 ./src/bluetooth.o \
-./src/configThreeLight.o \
-./src/openCV.o 
+./src/configThreeLight.o 
 
 CPP_DEPS += \
 ./src/bluetooth.d \
-./src/configThreeLight.d \
-./src/openCV.d 
+./src/configThreeLight.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes

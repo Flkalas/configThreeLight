@@ -23,4 +23,6 @@ using namespace std;
 
 int testBlue(void);
 
+int parseAdvertise(int sock);
+
 #endif /* BLUETOOTH_H_ */

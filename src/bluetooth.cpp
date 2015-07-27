@@ -50,3 +50,9 @@ int testBlue(void){
     close( sock );
     return 0;
 }
+
+int parseAdvertise(int sock){
+
+
+	return 0;
+}
