@@ -8,7 +8,8 @@ using namespace std;
 int main(int argc, char* argv[]){
 //	testSobel();
 	//testBlue();
-	watchBeacon();
+	//watchBeacon();
+	startBeacon();
 
 
 }
