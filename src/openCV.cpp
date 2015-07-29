@@ -66,9 +66,10 @@ int testSobel(void){
         for(int row = 0; row < inputImg->height; row++){
           for(int col = 0; col < inputImg->width; col++){
             int valH = outputImg->imageData[inputImg->widthStep * row + col * 3];
-            if(valH < 30 || valH > 149){
-            	rImg->imageData[inputImg->widthStep * row + col * 3] = 255;
-            	rImg->imageData[inputImg->widthStep * row + col * 3 + 1] = 255;
+            int valS = outputImg->imageData[inputImg->widthStep * row + col * 3+1];
+            if((valH < 5 || valH > 175) && valS > 1){
+            	rImg->imageData[inputImg->widthStep * row + col * 3] = 0;
+            	rImg->imageData[inputImg->widthStep * row + col * 3 + 1] = 0;
             	rImg->imageData[inputImg->widthStep * row + col * 3 + 2] = 255;
             }
             else{
@@ -78,9 +79,9 @@ int testSobel(void){
             }
 
             if(valH > 29 && valH < 90){
-				gImg->imageData[inputImg->widthStep * row + col * 3] = 255;
+				gImg->imageData[inputImg->widthStep * row + col * 3] = 0;
 				gImg->imageData[inputImg->widthStep * row + col * 3 + 1] = 255;
-				gImg->imageData[inputImg->widthStep * row + col * 3 + 2] = 255;
+				gImg->imageData[inputImg->widthStep * row + col * 3 + 2] = 0;
 			}
             else{
             	gImg->imageData[inputImg->widthStep * row + col * 3] = 0;
@@ -89,8 +90,8 @@ int testSobel(void){
             }
 
             if(valH > 89 && valH < 150){
-				bImg->imageData[inputImg->widthStep * row + col * 3] = 255;
-				bImg->imageData[inputImg->widthStep * row + col * 3 + 1] = 255;
+				bImg->imageData[inputImg->widthStep * row + col * 3] = 0;
+				bImg->imageData[inputImg->widthStep * row + col * 3 + 1] = 0;
 				bImg->imageData[inputImg->widthStep * row + col * 3 + 2] = 255;
 			}
             else{
