@@ -53,22 +53,22 @@ int testBlue(void){
 
 int testBeaconOnOff(void){
 	int sock = startBeacon();
-	for(int var = 0; var < 10; ++var) {
-		sleep(1);
-		cout << var << endl;
-	}
-	pauseBeacon(sock);
-	for(int var = 0; var < 10; ++var) {
-		sleep(1);
-		cout << var << endl;
-	}
-	resumeBeacon(sock);
-	for(int var = 0; var < 10; ++var) {
-		sleep(1);
-		cout << var << endl;
-	}
-	pauseBeacon(sock);
-	close(sock);
+//	for(int var = 0; var < 10; ++var) {
+//		sleep(1);
+//		cout << var << endl;
+//	}
+//	pauseBeacon(sock);
+//	for(int var = 0; var < 10; ++var) {
+//		sleep(1);
+//		cout << var << endl;
+//	}
+//	resumeBeacon(sock);
+//	for(int var = 0; var < 10; ++var) {
+//		sleep(1);
+//		cout << var << endl;
+//	}
+//	pauseBeacon(sock);
+//	close(sock);
 
 	return 0;
 }
