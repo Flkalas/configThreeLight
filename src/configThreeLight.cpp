@@ -2,6 +2,7 @@
 
 //#include "openCV.h"
 #include "bluetooth.h"
+#include "portControl.h"
 
 using namespace std;
 
