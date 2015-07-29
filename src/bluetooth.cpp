@@ -51,6 +51,28 @@ int testBlue(void){
     return 0;
 }
 
+int testBeaconOnOff(void){
+	int sock = startBeacon();
+	for(int var = 0; var < 10; ++var) {
+		sleep(1);
+		cout << var << endl;
+	}
+	pauseBeacon(sock);
+	for(int var = 0; var < 10; ++var) {
+		sleep(1);
+		cout << var << endl;
+	}
+	resumeBeacon(sock);
+	for(int var = 0; var < 10; ++var) {
+		sleep(1);
+		cout << var << endl;
+	}
+	pauseBeacon(sock);
+	close(sock);
+
+	return 0;
+}
+
 int watchBeacon(void){
 	while(1){
 		searchBeacon();
@@ -63,6 +85,7 @@ int watchBeacon(void){
 int searchBeacon(void){
 	iBeaconInfo* listBeaconInfo = NULL;
 	int sock = openBlueSocket();
+
 	int numInfo = parseAdvertise(sock,listBeaconInfo);
 
 	listBeaconInfo = (iBeaconInfo*)calloc(numInfo,sizeof(iBeaconInfo));
@@ -73,14 +96,27 @@ int searchBeacon(void){
 }
 
 int startBeacon(void){
+	//int sock = hci_get_route(NULL);
 	int sock = openBlueSocket();
 
 	setAdvertisingParameters(sock);
-	enableAdvertise(sock);
+	changeAdvertiseState(sock,BEACON_ENABLE);
 	setAdvertisingData(sock);
 
+	return sock;
+}
+
+int pauseBeacon(int sock){
+	changeAdvertiseState(sock,BEACON_DISABLE);
 	return 0;
 }
+
+int resumeBeacon(int sock){
+	changeAdvertiseState(sock,BEACON_ENABLE);
+	setAdvertisingData(sock);
+	return 0;
+}
+
 
 int openBlueSocket(void){
 	int devID = 0, sock = 0;
@@ -88,8 +124,8 @@ int openBlueSocket(void){
 	devID = hci_get_route(NULL);
 	sock = hci_open_dev(devID);
 
-	hci_le_set_scan_parameters(sock, 0x01, htobs(0x0010), htobs(0x0010), 0x00, 0x00, 2000);
-	hci_le_set_scan_enable(sock, 0x01, 0, 1000);
+	//hci_le_set_scan_parameters(sock, 0x01, htobs(0x0010), htobs(0x0010), 0x00, 0x00, 2000);
+	//hci_le_set_scan_enable(sock, 0x01, 0, 1000);
 
 	return sock;
 }
@@ -98,28 +134,62 @@ int setAdvertisingParameters(int sock){
 	le_set_advertising_parameters_cp paraAdvertising;
 
 	//A0 00 / A0 00 / 03 / 00 / 00 / 00 00 00 00 00 00 / 07 / 00
+	memset(&paraAdvertising, 0, sizeof(paraAdvertising));
 	paraAdvertising.min_interval = 0xA000;
 	paraAdvertising.max_interval = 0xA000;
 	paraAdvertising.advtype = HCI_SCODATA_PKT;
-	paraAdvertising.own_bdaddr_type = 0x00;
-	paraAdvertising.direct_bdaddr_type = 0x00;
-	memset(paraAdvertising.direct_bdaddr.b,0,LE_SET_RANDOM_ADDRESS_CP_SIZE);
 	paraAdvertising.chan_map = 0x07;
-	paraAdvertising.filter = 0x00;
 
-	//int hci_send_cmd(int dd, uint16_t ogf, uint16_t ocf, uint8_t plen, void *param);
-	hci_send_cmd(sock,OGF_LE_CTL,OCF_LE_SET_ADVERTISING_PARAMETERS,LE_SET_ADVERTISING_PARAMETERS_CP_SIZE,&paraAdvertising);
+	hci_request requestHCI;
+	uint8_t status;
+
+	//hci_send_cmd(sock,OGF_LE_CTL,OCF_LE_SET_ADVERTISING_PARAMETERS,LE_SET_ADVERTISING_PARAMETERS_CP_SIZE,&paraAdvertising);
+	memset(&requestHCI, 0, sizeof(requestHCI));
+	requestHCI.ogf = OGF_LE_CTL;
+	requestHCI.ocf = OCF_LE_SET_ADVERTISING_PARAMETERS;
+	requestHCI.cparam = &paraAdvertising;
+	requestHCI.clen = LE_SET_ADVERTISING_PARAMETERS_CP_SIZE;
+	requestHCI.rparam = &status;
+	requestHCI.rlen = 1;
+
+	if (hci_send_req(sock, &requestHCI, 1000) < 0){
+		return -1;
+	}
+
+	if (status) {
+		printf("Error: setAdvertisingParameters number 0x%02X\n", status);
+		return -1;
+	}
 
 	return 0;
 }
 
-int enableAdvertise(int sock){
+int changeAdvertiseState(int sock, int enable){
 	le_set_advertise_enable_cp strEnableAdvertise;
 
 	//01
-	strEnableAdvertise.enable = 0x01;
+	strEnableAdvertise.enable = enable;
 
-	hci_send_cmd(sock,OGF_LE_CTL,OCF_LE_SET_ADVERTISE_ENABLE,LE_SET_ADVERTISE_ENABLE_CP_SIZE,&strEnableAdvertise);
+	hci_request requestHCI;
+	uint8_t status;
+
+	//hci_send_cmd(sock,OGF_LE_CTL,OCF_LE_SET_ADVERTISE_ENABLE,LE_SET_ADVERTISE_ENABLE_CP_SIZE,&strEnableAdvertise);
+	memset(&requestHCI, 0, sizeof(requestHCI));
+	requestHCI.ogf = OGF_LE_CTL;
+	requestHCI.ocf = OCF_LE_SET_ADVERTISE_ENABLE;
+	requestHCI.cparam = &strEnableAdvertise;
+	requestHCI.clen = LE_SET_ADVERTISE_ENABLE_CP_SIZE;
+	requestHCI.rparam = &status;
+	requestHCI.rlen = 1;
+
+	if (hci_send_req(sock, &requestHCI, 1000) < 0){
+		return -1;
+	}
+
+	if (status) {
+		printf("Error: changeAdvertiseState number 0x%02X\n", status);
+		return -1;
+	}
 
 	return 0;
 }
@@ -128,7 +198,6 @@ int setAdvertisingData(int sock){
 	le_set_advertising_data_cp dataAdvertising;
 
 	//1E
-
 	dataAdvertising.length = 0x1E; // 30byte
 
 	// 02 01 / 1A / 1A
@@ -174,7 +243,26 @@ int setAdvertisingData(int sock){
 
 	dataAdvertising.data[30] = 0x00;
 
-	hci_send_cmd(sock,OGF_LE_CTL,OCF_LE_SET_ADVERTISING_DATA,LE_SET_ADVERTISING_DATA_CP_SIZE,&dataAdvertising);
+	hci_request requestHCI;
+	uint8_t status;
+
+	//hci_send_cmd(sock,OGF_LE_CTL,OCF_LE_SET_ADVERTISING_DATA,LE_SET_ADVERTISING_DATA_CP_SIZE,&dataAdvertising);
+	memset(&requestHCI, 0, sizeof(requestHCI));
+	requestHCI.ogf = OGF_LE_CTL;
+	requestHCI.ocf = OCF_LE_SET_ADVERTISING_DATA;
+	requestHCI.cparam = &dataAdvertising;
+	requestHCI.clen = LE_SET_ADVERTISING_DATA_CP_SIZE;
+	requestHCI.rparam = &status;
+	requestHCI.rlen = 1;
+
+	if(hci_send_req(sock, &requestHCI, 1000) < 0){
+		return -1;
+	}
+
+	if(status){
+		printf("Error: setAdvertisingData number 0x%02X\n", status);
+		return -1;
+	}
 
 	return 0;
 }

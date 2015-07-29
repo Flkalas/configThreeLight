@@ -24,17 +24,25 @@
 
 #define BUFFER_SIZE 255
 
+#define BEACON_ENABLE 1
+#define BEACON_DISABLE 0
+
 using namespace std;
 
 int testBlue(void);
+int testBeaconOnOff(void);
 
 int watchBeacon(void);
 
 int searchBeacon(void);
 int startBeacon(void);
 
+int initializeBeacon(int sock);
+int pauseBeacon(int sock);
+int resumeBeacon(int sock);
+
 int openBlueSocket(void);
-int enableAdvertise(int sock);
+int changeAdvertiseState(int sock, int enable);
 int setAdvertisingParameters(int sock);
 int setAdvertisingData(int sock);
 int parseAdvertise(int sock, iBeaconInfo* listBeaconInfo, int numBeaconInfo=0);
