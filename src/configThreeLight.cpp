@@ -11,7 +11,8 @@ int main(int argc, char* argv[]){
 	//testBlue();
 	//watchBeacon();
 	//testBeaconOnOff();
-	testGPIO();
+	//testGPIO();
+	testADC();
 }
 
 

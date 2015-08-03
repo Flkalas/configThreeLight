@@ -31,6 +31,12 @@ int testGPIO(void){
 	return 0;
 }
 
+int testADC(void){
+	cout << getADCvalue(0) << endl;
+
+	return 0;
+}
+
 int initGPIO(void){
 	int fd = openFileDiscriptor();
 	if(fd == -1){
@@ -45,12 +51,12 @@ int initGPIO(void){
 }
 
 int configGPIO(int peripherel, int indexMain, int indexSub, int mode){
-	if(int errorNo = checkIndex(peripherel,indexMain,indexSub)){
+	if(int errorNo = checkGPIOIndex(peripherel,indexMain,indexSub)){
 		printf("Error: configGPIO Out of Index 0x%1X\n",errorNo);
 		return -1;
 	}
 
-	if(checkMode(mode)){
+	if(checkGPIOMode(mode)){
 		printf("Error: configGPIO no mode like 0x%1X\n",mode);
 		return -1;
 	}
@@ -63,7 +69,7 @@ int configGPIO(int peripherel, int indexMain, int indexSub, int mode){
 }
 
 int writeGPIO(int peripherel, int indexMain, int indexSub, int bit){
-	if(int errorNo = checkIndex(peripherel,indexMain,indexSub)){
+	if(int errorNo = checkGPIOIndex(peripherel,indexMain,indexSub)){
 		printf("Error: setGPIO Out of Index 0x%1X\n",errorNo);
 		return -1;
 	}
@@ -82,10 +88,58 @@ int writeGPIO(int peripherel, int indexMain, int indexSub, int bit){
 	return 0;
 }
 
+inline bool exists_test3 (const string& name) {
+	struct stat buffer;
+	return (stat (name.c_str(), &buffer) == 0);
+}
+
+int getADCvalue(int index){
+	if(checkADCIndex(index)){
+		cout << "Error: getADCvalue Out of Index " << index << endl;
+		return -1;
+	}
+
+	// /sys/ devic  es/12 d1000  0.adc /iio\  :devi ce0/i  n_vol tage0  _raw
+	// /sys/devices/12d10000.adc/iio\:device0/in_voltage0_raw
+	// /sys/devices/12d10000.adc/iio\:device0/in_voltage0_raw
+	// /sys/devices/12d10000.adc/iio\:device0/in_voltage0_raw
+
+	char path[64] = {0};
+	sprintf(path,"/sys/devices/12d10000.adc/iio\\:device0/in_voltage%d_raw",index);
+	cout << "path: " << path << endl;
+
+//	sprintf(path,"~/../../sys/devices/12d10000.adc/iio\\:device0/in_voltage%d_raw",index);
+//	cout << "path: " << path << endl;
+//
+//	sprintf(path,"/home/odroid/git/configThreeLight/Debug/a");
+//	cout << "path: " << path << endl;
+
+	cout << "file exist: " << exists_test3(path) << endl;
+	cout << "exam exist: " << exists_test3("./a") << endl;
+
+	FILE* fd = NULL;
+
+	fd = fopen(path, "r");
+	if(fd == NULL){
+		cout << "File open error: " << fd << endl;
+		return -1;
+	}
+
+	char result[LEN_RESULT_STR] = {0};
+	int valResult = 0;
+	if(fgets(result, LEN_RESULT_STR, fd) > 0){
+		 valResult = atoi(result);
+	}
+
+	fclose(fd);
+	return valResult;
+}
+
+
 int openFileDiscriptor(void){
 	int fd;
 
-	if((fd = open ("/dev/mem", O_RDWR | O_SYNC) ) < 0){
+	if((fd = open("/dev/mem", O_RDWR | O_SYNC) ) < 0){
 		printf("Unable to open /dev/mem\n");
 		return -1;
 	}
@@ -180,7 +234,7 @@ volatile uint32_t* getAddrGPIO(int peripherel){
 	}
 }
 
-int checkIndex(int peripherel, int indexMain, int indexSub){
+int checkGPIOIndex(int peripherel, int indexMain, int indexSub){
 	switch(peripherel){
 	case PERIPHEREL_GPX:
 		if(indexMain > 0 && indexMain < 4){
@@ -236,7 +290,7 @@ int checkIndex(int peripherel, int indexMain, int indexSub){
 	}
 }
 
-int checkMode(int mode){
+int checkGPIOMode(int mode){
 	if(mode == MODE_INPUT){
 		return 0;
 	}
@@ -250,4 +304,11 @@ int checkMode(int mode){
 		return 0;
 	}
 	return NONE_MODE;
+}
+
+int checkADCIndex(int index){
+	if(index != 0 && index != 3){
+		return true;
+	}
+	return false;
 }

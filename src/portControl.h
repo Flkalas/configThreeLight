@@ -9,11 +9,14 @@
 #define GPIOCONTROL_H_
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <stdint.h>
 #include <unistd.h>
 #include <math.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 #include <iostream>
 
@@ -54,6 +57,9 @@
 
 #define NONE_MODE 0x1
 
+#define LEN_RESULT_STR 5
+
+
 #define ResetRegister(base,offset,numBits,indexSub) 		(*((base)+((offset)>>2)) &= ~((int)((pow(2,(numBits)))-1) << ((indexSub)*(numBits))))
 #define SetRegister(base,offset,numBits,indexSub,value) 	(*((base)+((offset)>>2)) |= (value) << ((indexSub)*(numBits)))
 
@@ -64,10 +70,13 @@ static volatile uint32_t* gpioGPA;
 static volatile uint32_t* gpioGPB;
 
 int testGPIO(void);
+int testADC(void);
 
 int initGPIO(void);
 int configGPIO(int peripherel, int indexMain, int indexSub, int mode);
 int writeGPIO(int peripherel, int indexMain, int indexSub, int bit);
+
+int getADCvalue(int index);
 
 int openFileDiscriptor(void);
 unsigned int* mapMemory(int fd, int addrBase);
@@ -76,7 +85,8 @@ int getConfigAddrOffset(int peripherel, int indexMain, int indexSub);
 int getDataAddrOffset(int peripherel, int indexMain, int indexSub);
 volatile uint32_t* getAddrGPIO(int peripherel);
 
-int checkIndex(int peripherel, int indexMain, int indexSub);
-int checkMode(int mode);
+int checkGPIOIndex(int peripherel, int indexMain, int indexSub);
+int checkGPIOMode(int mode);
+int checkADCIndex(int index);
 
 #endif /* GPIOCONTROL_H_ */
