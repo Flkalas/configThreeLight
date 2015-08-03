@@ -45,7 +45,7 @@ int openBlueSocket(void);
 int changeAdvertiseState(int sock, int enable);
 int setAdvertisingParameters(int sock);
 int setAdvertisingData(int sock);
-int parseAdvertise(int sock, iBeaconInfo* listBeaconInfo, int numBeaconInfo=0);
+int parseAdvertise(int sock, iBeaconInfo* &listBeaconInfo);
 int printBeaconInfo(iBeaconInfo* listBeaconInfo, int numBeaconInfo);
 
 #endif /* BLUETOOTH_H_ */

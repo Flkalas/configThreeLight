@@ -87,9 +87,6 @@ int searchBeacon(void){
 	int sock = openBlueSocket();
 
 	int numInfo = parseAdvertise(sock,listBeaconInfo);
-
-	listBeaconInfo = (iBeaconInfo*)calloc(numInfo,sizeof(iBeaconInfo));
-	parseAdvertise(sock,listBeaconInfo,numInfo);
 	printBeaconInfo(listBeaconInfo,numInfo);
 
 	return 0;
@@ -124,8 +121,8 @@ int openBlueSocket(void){
 	devID = hci_get_route(NULL);
 	sock = hci_open_dev(devID);
 
-	//hci_le_set_scan_parameters(sock, 0x01, htobs(0x0010), htobs(0x0010), 0x00, 0x00, 2000);
-	//hci_le_set_scan_enable(sock, 0x01, 0, 1000);
+	hci_le_set_scan_parameters(sock, 0x01, htobs(0x0010), htobs(0x0010), 0x00, 0x00, 2000);
+	hci_le_set_scan_enable(sock, 0x01, 0, 1000);
 
 	return sock;
 }
@@ -267,7 +264,7 @@ int setAdvertisingData(int sock){
 	return 0;
 }
 
-int parseAdvertise(int sock, iBeaconInfo* listBeaconInfo, int numBeaconInfo){
+int parseAdvertise(int sock, iBeaconInfo* &listBeaconInfo){
 	int oldFilter = 0, sizeFilter = 0;
 	getsockopt(sock,SOL_HCI,HCI_FILTER,&oldFilter,(socklen_t*)&sizeFilter);
 
@@ -287,11 +284,12 @@ int parseAdvertise(int sock, iBeaconInfo* listBeaconInfo, int numBeaconInfo){
 	{
 		int codeSubEvent = pkt[3];
 		if(codeSubEvent == EVT_LE_ADVERTISING_REPORT){
-			if(listBeaconInfo == NULL){
-				return pkt[4];
+			if(listBeaconInfo != NULL){
+				delete [] listBeaconInfo;
 			}
 
-			for(int i = 0; i < numBeaconInfo; i++){
+			listBeaconInfo = new iBeaconInfo[pkt[4]];
+			for(int i = 0; i < pkt[4]; i++){
 				listBeaconInfo[i] = iBeaconInfo(pkt+4+40*i);
 			}
 		}
@@ -303,7 +301,7 @@ int parseAdvertise(int sock, iBeaconInfo* listBeaconInfo, int numBeaconInfo){
 		break;
 	}
 
-	return 0;
+	return pkt[4];
 }
 
 int printBeaconInfo(iBeaconInfo* listBeaconInfo, int numBeaconInfo){
