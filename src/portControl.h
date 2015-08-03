@@ -15,8 +15,6 @@
 #include <stdint.h>
 #include <unistd.h>
 #include <math.h>
-#include <sys/stat.h>
-#include <fcntl.h>
 
 #include <iostream>
 
@@ -57,8 +55,7 @@
 
 #define NONE_MODE 0x1
 
-#define LEN_RESULT_STR 5
-
+#define MAX_STR_LEN 64
 
 #define ResetRegister(base,offset,numBits,indexSub) 		(*((base)+((offset)>>2)) &= ~((int)((pow(2,(numBits)))-1) << ((indexSub)*(numBits))))
 #define SetRegister(base,offset,numBits,indexSub,value) 	(*((base)+((offset)>>2)) |= (value) << ((indexSub)*(numBits)))
@@ -75,18 +72,18 @@ int testADC(void);
 int initGPIO(void);
 int configGPIO(int peripherel, int indexMain, int indexSub, int mode);
 int writeGPIO(int peripherel, int indexMain, int indexSub, int bit);
-
 int getADCvalue(int index);
 
 int openFileDiscriptor(void);
 unsigned int* mapMemory(int fd, int addrBase);
 int forceMemory(volatile uint32_t* base,int offset, int numbits, int indexSub, int data);
+
 int getConfigAddrOffset(int peripherel, int indexMain, int indexSub);
 int getDataAddrOffset(int peripherel, int indexMain, int indexSub);
 volatile uint32_t* getAddrGPIO(int peripherel);
 
+int checkADCIndex(int index);
 int checkGPIOIndex(int peripherel, int indexMain, int indexSub);
 int checkGPIOMode(int mode);
-int checkADCIndex(int index);
 
 #endif /* GPIOCONTROL_H_ */

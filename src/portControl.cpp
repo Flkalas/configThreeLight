@@ -32,7 +32,10 @@ int testGPIO(void){
 }
 
 int testADC(void){
-	cout << getADCvalue(0) << endl;
+	while(1){
+		cout << getADCvalue(0) << endl;
+		usleep(500);
+	}
 
 	return 0;
 }
@@ -88,58 +91,26 @@ int writeGPIO(int peripherel, int indexMain, int indexSub, int bit){
 	return 0;
 }
 
-inline bool exists_test3 (const string& name) {
-	struct stat buffer;
-	return (stat (name.c_str(), &buffer) == 0);
-}
-
 int getADCvalue(int index){
 	if(checkADCIndex(index)){
 		cout << "Error: getADCvalue Out of Index " << index << endl;
-		return -1;
 	}
 
-	// /sys/ devic  es/12 d1000  0.adc /iio\  :devi ce0/i  n_vol tage0  _raw
-	// /sys/devices/12d10000.adc/iio\:device0/in_voltage0_raw
-	// /sys/devices/12d10000.adc/iio\:device0/in_voltage0_raw
-	// /sys/devices/12d10000.adc/iio\:device0/in_voltage0_raw
+	char path[MAX_STR_LEN];
+	sprintf(path,"/sys/bus/iio/devices/iio:device0/in_voltage%d_raw",index);
 
-	char path[64] = {0};
-	sprintf(path,"/sys/devices/12d10000.adc/iio\\:device0/in_voltage%d_raw",index);
-	cout << "path: " << path << endl;
+	char result[MAX_STR_LEN];
+	int fd = open(path, O_RDONLY);
+	read(fd,result,MAX_STR_LEN);
+	close(fd);
 
-//	sprintf(path,"~/../../sys/devices/12d10000.adc/iio\\:device0/in_voltage%d_raw",index);
-//	cout << "path: " << path << endl;
-//
-//	sprintf(path,"/home/odroid/git/configThreeLight/Debug/a");
-//	cout << "path: " << path << endl;
-
-	cout << "file exist: " << exists_test3(path) << endl;
-	cout << "exam exist: " << exists_test3("./a") << endl;
-
-	FILE* fd = NULL;
-
-	fd = fopen(path, "r");
-	if(fd == NULL){
-		cout << "File open error: " << fd << endl;
-		return -1;
-	}
-
-	char result[LEN_RESULT_STR] = {0};
-	int valResult = 0;
-	if(fgets(result, LEN_RESULT_STR, fd) > 0){
-		 valResult = atoi(result);
-	}
-
-	fclose(fd);
-	return valResult;
+	return atoi(result);
 }
-
 
 int openFileDiscriptor(void){
 	int fd;
 
-	if((fd = open("/dev/mem", O_RDWR | O_SYNC) ) < 0){
+	if((fd = open ("/dev/mem", O_RDWR | O_SYNC) ) < 0){
 		printf("Unable to open /dev/mem\n");
 		return -1;
 	}
@@ -234,6 +205,10 @@ volatile uint32_t* getAddrGPIO(int peripherel){
 	}
 }
 
+int checkADCIndex(int index){
+	return (index != 0 && index != 3);
+}
+
 int checkGPIOIndex(int peripherel, int indexMain, int indexSub){
 	switch(peripherel){
 	case PERIPHEREL_GPX:
@@ -304,11 +279,4 @@ int checkGPIOMode(int mode){
 		return 0;
 	}
 	return NONE_MODE;
-}
-
-int checkADCIndex(int index){
-	if(index != 0 && index != 3){
-		return true;
-	}
-	return false;
 }
