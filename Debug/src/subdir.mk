@@ -6,17 +6,20 @@
 CPP_SRCS += \
 ../src/bluetooth.cpp \
 ../src/configThreeLight.cpp \
-../src/openCV.cpp 
+../src/iBeaconInfo.cpp \
+../src/portControl.cpp 
 
 OBJS += \
 ./src/bluetooth.o \
 ./src/configThreeLight.o \
-./src/openCV.o 
+./src/iBeaconInfo.o \
+./src/portControl.o 
 
 CPP_DEPS += \
 ./src/bluetooth.d \
 ./src/configThreeLight.d \
-./src/openCV.d 
+./src/iBeaconInfo.d \
+./src/portControl.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes
