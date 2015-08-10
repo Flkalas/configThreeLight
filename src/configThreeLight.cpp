@@ -2,6 +2,7 @@
 
 //#include "openCV.h"
 #include "bluetooth.h"
+#include "portControl.h"
 
 using namespace std;
 
@@ -10,6 +11,8 @@ int main(int argc, char* argv[]){
 	//testBlue();
 	watchBeacon();
 	//testBeaconOnOff();
+	//testGPIO();
+	testADC();
 }
 
 
